@@ -1,0 +1,47 @@
+@page "/fetchproducts"
+@inject ClientApp.Services.ProductApi Api
+
+<h3>Product List</h3>
+
+@if (error is not null)
+{
+    <div class="alert alert-danger">@error</div>
+}
+else if (products is null)
+{
+    <p>Loading...</p>
+}
+else if (products.Length == 0)
+{
+    <p>No products found.</p>
+}
+else
+{
+    <ul>
+        @foreach (var p in products)
+        {
+            <li>
+                <strong>@p.Name</strong> — $@p.Price (@p.Stock in stock)
+                <br />
+                <em>Category:</em> @p.Category?.Name
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private ClientApp.Models.Product[]? products;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await Api.GetProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            error = $"Failed to load products: {ex.Message}";
+        }
+    }
+}
